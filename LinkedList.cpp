@@ -90,6 +90,7 @@ public:
     LinkedList& operator += (const LinkedList<T>& other);
     LinkedList& operator + (const LinkedList<T>& other);
     T& operator[](unsigned int index);
+    void reverse();
     Iterator begin(){
         return Iterator(this->head);
     }
@@ -103,6 +104,23 @@ LinkedList<T> :: LinkedList():
     head(nullptr),
     tail(nullptr),
     size(0){
+}
+
+template <class T>
+void LinkedList<T> :: reverse(){
+    Node * current = this->head;
+    Node * prev = nullptr;
+    Node * next = nullptr;
+
+    while(current != nullptr){
+        next = current->next;
+
+        current->next = prev;
+
+        prev = current;
+        current = next;
+    }
+    head = prev;
 }
 
 template <class T>
@@ -319,6 +337,12 @@ int main()
 
     LinkedList<int> l3;
     l3 = l;
+    l3.print();
+
+    std::cout<<std::endl;
+    std::cout<<std::endl;
+
+    l3.reverse();
     l3.print();
 
     std::cout<<std::endl;
