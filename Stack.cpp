@@ -81,9 +81,28 @@ void Stack<T> :: print()const{
 
 template<typename T>
 void Stack<T> :: copy(const Stack& other){
-    Stack reversed;
-    reversed.copyReverse(other);
-    this->copyReverse(reversed);
+//    NOT OPTIMAL
+//    Stack reversed;
+//    reversed.copyReverse(other);
+//    this->copyReverse(reversed);
+
+    if(other.first == nullptr){
+        this->first = nullptr;
+        this->size = 0;
+        return;
+    }
+
+    this->first = new Node(other.first->data, other.first->next);
+    Node * temp1 = this->first;
+    Node * temp2 = other.first;
+
+    while(temp2){
+        temp1->next = new Node(temp2->next->data, temp2->next->next);
+        temp1 = temp1->next;
+        temp2 = temp2->next;
+    }
+
+    this->size = other.size;
 }
 
 template<typename T>
@@ -147,5 +166,13 @@ int main()
    a.push(2);
   // a.clear();
    a.print();
+
+   Stack<int> b;
+   b = a;
+   b.push(8);
+   b.print();
+
+   Stack<int> c(a);
+   //c.print();
     return 0;
 }
