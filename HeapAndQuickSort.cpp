@@ -76,7 +76,7 @@ int main()
     cout<<endl;
 //    HeapSort(arr, 7);
 //    printArr(arr, 7);
-    quickSort(arr, 0, 7);
+    quickSort(arr, 0, 6);
     printArr(arr, 7);
     return 0;
 }
