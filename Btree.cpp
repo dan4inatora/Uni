@@ -2,165 +2,127 @@
 
 using namespace std;
 
-
-template<typename T>
+template <typename T>
 struct Node{
     T data;
     Node * left;
     Node * right;
-    Node(const T& data, Node * left, Node * right):
+
+    Node(const T& data, Node * left = nullptr, Node * right = nullptr):
         data(data),
         left(left),
         right(right){
     }
+
 };
 
 template<typename T>
-class Btree{
+class BinaryTree{
 
 private:
     Node<T> * root;
-    void addLeafprivate(const T& data, Node<T> * prt);
-    void printInOrderprivate(Node<T> * ptr);
-    Node<T>* returnNodeprivate(const T& data, Node<T> * ptr);
-    T& findSmallestPrivate(Node<T> * ptr)const;
-    void deleteNodeprivate(const T& data, Node<T> * parent);
-    void RemoveRootMatch();
-    void RemoveMatch(Node<T> * parent, Node<T> * match, bool left);
-    void normalPrint(Node<T> * ptr)const;
-    void removeSubtree(Node<T> * ptr); // removes pointer and everything below it
-
-
+    void Addleafprivate(T data, Node<T> * ptr);
+    void Printprivate(Node<T> *ptr);
+    Node<T> * ReturnNodePrivate(T data, Node<T> * ptr);
+    T& findSmallestPrivate(Node<T> * ptr);
+    void RemoveNodePrivate(const T& data, Node<T> *& ptr);
+    void destroyTree(Node<T> * ptr);
+    void NotOrderedPrintPrivate(Node<T> * ptr)const;
+    Node<T> * copyNode(Node<T> * current);
+    void copy(const BinaryTree& other);
 
 public:
-    Btree();
-    ~Btree();
-    Node<T> * createNode(const T& data);
-    void addLeaf(const T& data);
-    Node<T> * returnNode(const T& data);
-    void printInOrder();
-    T& returnRootData();
-    void printChildren(const T& data);
-    T& findSmallest()const;
-    void deleteNode(const T& data);
-    void print()const;
-
-
+    BinaryTree();
+    ~BinaryTree();
+    BinaryTree(const BinaryTree& other);
+    BinaryTree& operator = (const BinaryTree& other);
+    Node<T>* createLeafe(T data);
+    void Addleaf(T data);
+    void Print();
+    Node<T> * ReturnNode(T data);
+    T returnRootKey();
+    void PrintChildren(T data);
+    T& findSmallest();
+    void RemoveNode(const T& data);
+    T max(Node<T> * val)const;
+    void NotOrderedPrint()const;
 };
 
-template<typename T>
-void Btree<T> :: removeSubtree(Node<T> * ptr){
-    if(ptr != nullptr){
-        if(ptr->left){
-            removeSubtree(ptr->left);
-        }
-        if(ptr->right){
-            removeSubtree(ptr-> right);
-        }
-        cout<<"deleting: "<< ptr->data<<endl;
-        delete[] ptr;
+template <typename T>
+BinaryTree<T> :: BinaryTree(){
+    root = nullptr;
+}
+
+template <typename T>
+Node<T> * BinaryTree<T> ::createLeafe(T data){
+    Node<T> * newnode = new Node<T> (data);
+    return newnode;
+
+}
+
+template <typename T>
+void BinaryTree<T> :: Addleafprivate(T data, Node<T> * ptr){
+    if(this->root == nullptr){
+        this->root = createLeafe(data);
     }
-}
-
-template<typename T>
-Btree<T> :: ~Btree(){
-    removeSubtree(this->root);
-}
-
-
-template<typename T>
-void Btree<T> :: print()const{
-    normalPrint(this->root);
-}
-
-template<typename T>
-void Btree<T> :: normalPrint(Node<T> * ptr)const{
-    if(ptr){
-        normalPrint(ptr->left);
-
-        cout<<ptr->data<<" ";
-
-        normalPrint(ptr->right);
-    }
-}
-
-template<typename T>
-Btree<T> :: Btree(){
-    this->root = nullptr;
-}
-
-template<typename T>
-Node<T> * Btree<T> :: createNode(const T& data){
-    Node<T> * temp = new Node<T>(data,nullptr,nullptr);
-    return temp;
-}
-
-template<typename T>
-void Btree<T> :: addLeafprivate(const T& data, Node<T> * prt){
-
-        if(root == nullptr){
-            this->root = createNode(data);
-        }
-        else if(prt->data > data){
-            if(prt->left != nullptr){
-                addLeafprivate(data,prt->left);
-            }
-            else{
-                prt->left = createNode(data);
-            }
-        }
-        else if(prt->data < data){
-            if(prt->right != nullptr){
-                addLeafprivate(data,prt->right);
-            }
-            else{
-                prt->right = createNode(data);
-            }
-        }
-}
-
-template<typename T>
-void Btree<T> :: addLeaf(const T& data){
-    addLeafprivate(data, this->root);
-}
-
-
-template<typename T>
-void Btree<T> :: printInOrderprivate(Node<T> * ptr){
-    if(this->root != nullptr){
+    else if(ptr->data > data){
         if(ptr->left != nullptr){
-            printInOrderprivate(ptr->left);
+            Addleafprivate(data, ptr->left);
         }
-        cout<<ptr->data<<endl;
-        if(ptr->right != nullptr)
-        {
-            printInOrderprivate(ptr->right);
+        else{
+            ptr->left = createLeafe(data);
+        }
+    }
+    else if(ptr->data < data){
+        if(ptr->right != nullptr){
+            Addleafprivate(data, ptr->right);
+        }
+        else{
+            ptr->right = createLeafe(data);
         }
     }
     else{
-        cout<<"Tree is empty"<<endl;
+        cout<<"Data: "<< data << "has been already added"<<endl;
     }
 }
 
-template<typename T>
-void Btree<T> :: printInOrder(){
-    printInOrderprivate(this->root);
+template <typename T>
+void BinaryTree<T> :: Addleaf(T data){
+    Addleafprivate(data, this->root);
 }
 
+template <typename T>
+void BinaryTree<T> :: Printprivate(Node<T> * ptr){
+    if(root == nullptr){
+        cout<<"The tree is empty"<<endl;
+    }
+    else{
+        if(ptr->left != nullptr){
+            Printprivate(ptr->left);
+        }
+        cout<<ptr->data<< " ";
+        if(ptr->right != nullptr){
+            Printprivate(ptr->right);
+        }
+    }
+}
 
-template<typename T>
-Node<T>* Btree<T> :: returnNodeprivate(const T& data, Node<T> * ptr){
-    if(ptr != nullptr ){
+template <typename T>
+void BinaryTree<T>::Print(){
+    Printprivate(root);
+}
+
+template <typename T>
+Node<T> * BinaryTree<T> :: ReturnNodePrivate(T data, Node<T> * ptr){
+    if(ptr != nullptr){
         if(ptr->data == data){
             return ptr;
         }
-        else{
-            if(data < ptr->data){
-                return returnNodeprivate(data, ptr->left);
-            }
-            else{
-                return returnNodeprivate(data, ptr->right);
-            }
+        else if(ptr->data > data){
+            ReturnNodePrivate(data, ptr->left);
+        }
+        else if(ptr->data < data){
+            ReturnNodePrivate(data, ptr->right);
         }
     }
     else{
@@ -168,185 +130,166 @@ Node<T>* Btree<T> :: returnNodeprivate(const T& data, Node<T> * ptr){
     }
 }
 
-template<typename T>
-Node<T>* Btree<T> :: returnNode(const T& data){
-    return returnNodeprivate(data, this->root);
+
+template <typename T>
+Node<T> * BinaryTree<T> :: ReturnNode(T data){
+    return ReturnNodePrivate(data, root);
 }
 
-
-template<typename T>
-T& Btree<T> :: returnRootData(){
+template <typename T>
+T BinaryTree<T> :: returnRootKey(){
     if(root != nullptr){
         return root->data;
     }
-
 }
 
-template<typename T>
-void Btree<T> :: printChildren(const T& data){
-    Node<T>* temp = returnNode(data);
 
-    if(temp != nullptr){
-        cout<<"Parent node: "<<temp->data<<endl;
-        if(temp->left != nullptr){
-           cout<<"Left child: "<<temp->left->data<<endl;
-        }
-        else{
-            cout<<"No left child"<<endl;
-        }
+template <typename T>
+void BinaryTree<T> :: PrintChildren(T data){
+    Node<T> * ptr = ReturnNode(data);
+    if(ptr != nullptr){
+        cout<< "Parent is : " << ptr->data <<endl;
 
-        if(temp->right != nullptr){
-           cout<<"right child: "<<temp->right->data<<endl;
-        }
-        else{
-            cout<<"No right child"<<endl;
-        }
+        ptr->left == nullptr ? cout << "Left child is nullptr" <<endl : cout<<"Left child is: "<<ptr->left->data <<endl;
+        ptr->right == nullptr ? cout << "right child is nullptr" <<endl : cout<<"right child is: "<<ptr->right->data <<endl;
     }
     else{
-        cout<<"No Node with such data"<<endl;
+        cout<<"No such node in the tree Exists"<<endl;
     }
 }
 
-template<typename T>
-T& Btree<T> :: findSmallestPrivate(Node<T> * ptr)const{
-    if(this->root != nullptr){
+template <typename T>
+T& BinaryTree<T> :: findSmallestPrivate(Node<T> * ptr){
+    if(root != nullptr){
         if(ptr->left != nullptr){
-            return findSmallestPrivate(ptr->left);
+            findSmallest(ptr->left);
         }
         else{
             return ptr->data;
         }
     }
-
 }
 
-template<typename T>
-T& Btree<T> :: findSmallest()const{
-    return findSmallestPrivate(this->root);
+template <typename T>
+T& BinaryTree<T> :: findSmallest(){
+    findSmallestPrivate(root);
 }
 
-template<typename T>
-void Btree<T> :: deleteNodeprivate(const T& data, Node<T> * parent){
-    if(root != nullptr){
-        if(root->data == data){
-            RemoveRootMatch();
-        }
-        else{
-            if(data < parent->data && parent->left != nullptr){
-                parent->left->data == data ? RemoveMatch(parent, parent->left, true) : deleteNodeprivate(data, parent->left);
+template <typename T>
+void BinaryTree<T> :: RemoveNode(const T& data){
+    RemoveNodePrivate(data, root);
+}
 
-            }
-            else if(data > parent->data && parent->right != nullptr){
-                 parent->right->data == data ? RemoveMatch(parent, parent->right, false) : deleteNodeprivate(data, parent->right);
-            }
-            else{
-                cout<<"Node key not found in tree"<<endl;
-            }
-        }
+template <typename T>
+void BinaryTree<T> :: RemoveNodePrivate(const T& data, Node<T> *& ptr){
+    if(data < ptr->data){
+        RemoveNodePrivate(data, ptr->left);
+    }
+    else if(data > ptr->data){
+        RemoveNodePrivate(data, ptr->right);
     }
     else{
-        cout<<"Tree is empty"<<endl;
-    }
-}
-
-
-template<typename T>
-void Btree<T> :: RemoveRootMatch(){
-    if(root != nullptr){
-        Node<T> * temp = this->root;
-        T rootkey = root->data;
-        T smallestInRightSubtree;
-
-        // 0 children
-        if(root->right == nullptr && root->left ==nullptr){
-            this->root = nullptr;
-            delete[] temp;
+        if(ptr->left && ptr->right){
+            ptr->data = max(ptr->left);
+            RemoveNodePrivate(max(ptr->left), ptr->left);
         }
-        // one child right
-        else if(root->left == nullptr && root->right != nullptr){
-            root = root->right;
-            temp->right = nullptr;
-            delete[] temp;
-             cout<<"The rootkey: "<<rootkey<<" was deleted " <<"The new root contains" <<root->data<<endl;
+        else if(ptr->left){
+            Node<T> * temp = ptr;
+            ptr = ptr->left;
+            delete temp;
         }
-        //one child left
-        else if(root->left != nullptr && root->right == nullptr){
-            root = root->left;
-            temp->left = nullptr;
-            delete[] temp;
-            cout<<"The rootkey: "<<rootkey<<" was deleted " <<"The new root contains" <<root->data<<endl;
+        else if(ptr->right){
+            Node<T> * temp = ptr;
+            ptr = ptr->right;
+            delete temp;
         }
         else{
-           smallestInRightSubtree = findSmallestPrivate(root->right);
-           deleteNodeprivate(smallestInRightSubtree, root);
-           root->data = smallestInRightSubtree;
-           cout<<"The rootkey: "<<rootkey<<" was overwriten with" << root->data<<endl;
+            delete ptr;
         }
-    }
-    else{
-        cout<<"Three s empthy"<<endl;
     }
 }
 
+template <typename T>
+T BinaryTree<T> :: max(Node<T> * val)const{
 
-template<typename T>
-void Btree<T> :: RemoveMatch(Node<T> * parent, Node<T> * match, bool left){
-
-    if(root != nullptr){
-        Node<T> * temp;
-        T matchkey = match->data;
-        T smallestInrightTree;
-
-        if(match->left == nullptr && match->right == nullptr){
-            temp = match;
-            left == true ? parent->left = nullptr : parent->right = nullptr;
-            cout<<"The Node conatining "<<matchkey<<" has been removed"<<endl;
-        }
-        else if(match->left == nullptr && match->right != nullptr){
-            left == true ? parent->left = match->right : parent->right = match->right;
-            match->right = nullptr;
-            temp = match;
-            delete[] temp;
-            cout<<"The matching: "<<matchkey<<" was removeed"<<endl;
-        }
-        else if(match->left != nullptr && match->right == nullptr){
-            left == true ? parent->left = match->left : parent->right = match->left;
-            match->left = nullptr;
-            temp = match;
-            delete[] temp;
-            cout<<"The matching: "<<matchkey<<" was removeed"<<endl;
-        }
-        else{
-            smallestInrightTree = findSmallestPrivate(match->right);
-            deleteNodeprivate(smallestInrightTree, match);
-            match->data = smallestInrightTree;
-        }
+    Node<T> * temp = val;
+    while(temp->right){
+        temp = temp->right;
     }
-    else{
-        cout<<"Cannot remove match, tree empty"<<endl;
-    }
-
+    return temp->data;
 }
 
-template<typename T>
-void Btree<T> :: deleteNode(const T& data){
-    deleteNodeprivate(data, root);
+template <typename T>
+void BinaryTree<T> :: destroyTree(Node<T> * ptr){
+    if(ptr){
+        destroyTree(ptr->left);
+        destroyTree(ptr->right);
+
+        delete ptr;
+    }
 }
 
+template <typename T>
+BinaryTree<T> ::~BinaryTree(){
+    destroyTree(root);
+}
+
+template <typename T>
+void BinaryTree<T> :: NotOrderedPrintPrivate(Node<T> * ptr)const{
+    if(ptr){
+        cout<<ptr->data << " ";
+        NotOrderedPrintPrivate(ptr->left);
+        NotOrderedPrintPrivate(ptr->right);
+    }
+}
+
+template <typename T>
+void BinaryTree<T> :: NotOrderedPrint()const{
+    NotOrderedPrintPrivate(root);
+}
+
+
+template <typename T>
+Node<T> * BinaryTree<T> :: copyNode(Node<T> * current){
+
+    if(current == nullptr) return nullptr;
+    Node<T> * temp = new Node<T>(current->data, copyNode(current->left), copyNode(current->right));
+    return temp;
+}
+
+template <typename T>
+void BinaryTree<T> :: copy(const BinaryTree& other){
+    this->root = copyNode(other.root);
+}
+
+template <typename T>
+BinaryTree<T> :: BinaryTree(const BinaryTree& other){
+    this->copy(other);
+}
+
+template <typename T>
+BinaryTree<T>& BinaryTree<T> :: operator = (const BinaryTree& other){
+    if(this != &other){
+        this->destroyTree(this->root);
+        this.copy(other.root);
+    }
+    return *this;
+}
 int main()
 {
-    Btree<int> b;
-    int keys[] = {4, 5, 3, 6, 44, 5, 2, 78, 2, 88, 9};
-    for(int i = 0; i < 11; i++){
-        b.addLeaf(keys[i]);
+    int arr[13] = {50, 76, 21, 4 ,32,65,15, 52, 14, 100, 83, 2 ,3};
+    BinaryTree<int> btree;
+    for(int i = 0; i < 13; i++){
+            btree.Addleaf(arr[i]);
     }
 
-        b.print();
-//    b.printInOrder();
-//    b.printChildren(5);
-//    cout<<b.findSmallest()<<endl;
-//    b.deleteNode(4);
-
+    btree.Print();
+    cout<<endl;
+    btree.PrintChildren(50);
+    btree.NotOrderedPrint();
+    cout<<endl;
+    BinaryTree<int> copied(btree);
+    copied.Print();
 
     return 0;
 }
