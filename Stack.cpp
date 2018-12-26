@@ -1,178 +1,152 @@
-#include <iostream>
 
+template <typename U>
+struct Node2
+{
+    U data;
+    Node2<U>* next;
 
-
-template <typename T>
-class Stack{
-
-public:
-    struct Node{
-    T data;
-    Node * next;
-
-    Node(T data, Node * next):
-        data(data),
-        next(next){
+    Node2(const U& dt,Node2<U>* nxt = NULL)
+    {
+        data = dt;
+        next = nxt;
     }
-
 };
-    Stack();
-    Stack(const Stack& other);
-    Stack& operator = (const Stack& other);
-    ~Stack();
+
+template <typename U>
+class stack
+{
+private:
+    Node2<U>* first;
+    size_t counter;
+public:
+    stack();
+    stack(const stack&);
+    stack& operator=(const stack&);
+    size_t size() const;
+    U& top() const;
+    void push(const U& element);
     void pop();
-    void push(const T& elem);
-    T top()const;
-    size_t getsize()const;
     void print()const;
-    void clear();
+    bool isEmpty() const;
+    ~stack();
 
 
 private:
-    Node * first;
-    size_t size;
-    void copy(const Stack& other);
-    bool isEmpty()const;
+    void copy(const stack<U>&);
+    void copyReverse(const stack<U>& st);
     void empty();
-    void copyReverse(const Stack& other);
+    void init();
+
 
 };
+template <typename U>
+stack<U>::stack()
+{
+    this->first = NULL;
+    this->counter = 0;
+}
+template <typename U>
+stack<U>::stack(const stack& st)
+{
+    this->init();
+    this->copy(st);
+}
+template <typename U>
+stack<U>& stack<U>::operator=(const stack& st)
+{
+    if(this != &st)
+    {
+        this->empty();
+        this->init();
+        this->copy(st);
+    }
 
-template<typename T>
-Stack<T>::Stack(){
-    this->size = 0;
-    this->first = nullptr;
-
-
+    return *this;
 }
 
-template<typename T>
- void Stack <T>:: push(const T& elem){
-
-    Node *temp = new Node(elem,this->first);
-    this->first = temp;
-    size++;
- }
-
-template<typename T>
-void Stack<T> :: copyReverse(const Stack& other){
-    Node * temp = other.first;
-    for(size_t i = 0; i < other.size; i++){
-        this->push(temp->data);
-        temp = temp->next;
+template <typename U>
+U& stack<U>::top() const
+{
+    return this->first->data;
+}
+template <typename U>
+void stack<U>::push(const U& element)
+{
+    Node2<U>* add = new Node2<U>(element,this->first);
+    if(add)
+    {
+        this->first = add;
+        this->counter++;
+    }
+}
+template <typename U>
+void stack<U>::pop()
+{
+    if(!this->isEmpty())
+    {
+        Node2<U>* remove = this->first;
+        this->first = this->first->next;
+        delete remove;
+        this->counter--;
     }
 }
 
+template <typename U>
+size_t stack<U>::size() const
+{
+    return this->counter;
+}
 
-template<typename T>
-Stack<T> :: ~Stack(){
+template <typename U>
+bool stack<U>::isEmpty() const
+{
+    return this->first == NULL;
+}
+template <typename U>
+void stack<U>::init()
+{
+    this->first = NULL;
+    this->counter = 0;
+}
+template <typename U>
+void stack<U>::copyReverse(const stack<U>& st)
+{
+
+    Node2<U>* node = st.first;
+    for(size_t i = 0; i < st.size(); i++)
+    {
+        this->push(node->data);
+        node = node->next;
+    }
+}
+template <typename U>
+void stack<U>::copy(const stack<U>& st)
+{
+
+    stack<U> reverse;
+    reverse.copyReverse(st);
+
+    this->copyReverse(reverse);
+}
+template <typename U>
+void stack<U>::empty()
+{
+    for(size_t i = 0; i <= this->counter; i++)
+        this->pop();
+}
+
+template <typename U>
+stack<U>::~stack()
+{
     this->empty();
 }
 
-template<typename T>
-void Stack<T> :: print()const{
-    Node * temp = this->first;
-    for(size_t i = 0; i < this->size; i++){
+template <typename U>
+void stack<U>:: print()const{
+    Node2<U> * temp = this->first;
+    for(size_t i = 0; i < this->counter; i++){
         std::cout <<temp->data;
         std::cout<<std::endl;
         temp = temp->next;
     }
-}
-
-template<typename T>
-void Stack<T> :: copy(const Stack& other){
-//    NOT OPTIMAL
-//    Stack reversed;
-//    reversed.copyReverse(other);
-//    this->copyReverse(reversed);
-
-    if(other.first == nullptr){
-        this->first = nullptr;
-        this->size = 0;
-        return;
-    }
-
-    this->first = new Node(other.first->data, other.first->next);
-    Node * temp1 = this->first;
-    Node * temp2 = other.first;
-
-    while(temp2){
-        temp1->next = new Node(temp2->next->data, temp2->next->next);
-        temp1 = temp1->next;
-        temp2 = temp2->next;
-    }
-
-    this->size = other.size;
-}
-
-template<typename T>
-Stack<T> :: Stack(const Stack& other){
-    this->copy(other);
-}
-
-template<typename T>
-Stack<T>& Stack<T> :: operator = (const Stack& other){
-    if(this != &other){
-        this->empty();
-        this->copy(other);
-    }
-    return *this;
-}
-
-template<typename T>
-bool Stack <T> :: isEmpty()const{
-    return this->size == 0;
-}
-
-template<typename T>
-void Stack<T> :: pop(){
-
-    if(!this->isEmpty()){
-        Node * temp = this->first;
-        this->first = this->first->next;
-        delete[]temp;
-        size--;
-    }
-}
-
-template<typename T>
-void Stack<T> :: empty(){
-    while(this->size > 0){
-        this->pop();
-    }
-}
-
-template<typename T>
-void Stack<T> :: clear(){
-    this->empty();
-}
-
-template<typename T>
-size_t Stack<T> :: getsize()const{
-    return this->size;
-}
-
-template<typename T>
-T Stack<T> :: top()const{
-    return this->first->data;
-}
-
-int main()
-{
-   Stack<int> a;
-   a.push(3);
-   a.push(1);
-   a.push(3);
-   a.push(2);
-  // a.clear();
-   a.print();
-
-   Stack<int> b;
-   b = a;
-   b.push(8);
-   b.print();
-
-   Stack<int> c(a);
-   //c.print();
-    return 0;
 }
